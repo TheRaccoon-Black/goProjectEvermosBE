@@ -8,6 +8,8 @@ import (
 	"goProjectEvermos/internal/domain" 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+    "goProjectEvermos/internal/repository" 
+
 )
 
 func main() {
