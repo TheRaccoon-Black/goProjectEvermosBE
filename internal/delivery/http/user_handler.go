@@ -27,6 +27,7 @@ func (h *UserHandler) GetProfile(c *fiber.Ctx) error {
 		Nama  string `json:"nama"`
 		Email string `json:"email"`
 		NoTelp string `json:"no_telp"`
+		Role string `json:"role"`
 	}
 
 	response := userResponse{
@@ -34,6 +35,7 @@ func (h *UserHandler) GetProfile(c *fiber.Ctx) error {
 		Nama:  user.Nama,
 		Email: user.Email,
 		NoTelp: user.NoTelp,
+		Role: user.Role,
 	}
 
 	return SuccessResponse(c, fiber.StatusOK, "Profil berhasil didapatkan", response)

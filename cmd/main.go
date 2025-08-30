@@ -40,24 +40,34 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	tokoRepo := repository.NewTokoRepository(db)
 	alamatRepo := repository.NewAlamatRepository(db)
+	categoryRepo := repository.NewCategoryRepository(db)
+
 
 	authUsecase := usecase.NewAuthUsecase(userRepo, tokoRepo)
 	userUsecase := usecase.NewUserUsecase(userRepo)
 	alamatUsecase := usecase.NewAlamatUsecase(alamatRepo)
 	tokoUsecase := usecase.NewTokoUsecase(tokoRepo)
+	categoryUsecase := usecase.NewCategoryUsecase(categoryRepo)
 
 	authHandler := delivery.NewAuthHandler(authUsecase) 
 	userHandler := delivery.NewUserHandler(userUsecase)
 	alamatHandler := delivery.NewAlamatHandler(alamatUsecase)
 	tokoHandler := delivery.NewTokoHandler(tokoUsecase)
+	categoryHandler := delivery.NewCategoryHandler(categoryUsecase)
 	
 	
 	app := fiber.New() 
 
 	app.Static("/public", "./public")
 	
+	
 	api := app.Group("/api/v1")
 	auth := api.Group("/auth")
+	
+	authGroup := api.Group("")
+	authGroup.Use(delivery.AuthMiddleware())
+
+
 	auth.Post("/register", authHandler.Register)
 	auth.Post("/login", authHandler.Login)
 
@@ -79,6 +89,15 @@ func main() {
 	toko.Use(delivery.AuthMiddleware()) 
 	toko.Get("/my", tokoHandler.GetMyToko)
 	toko.Put("/:id_toko", tokoHandler.UpdateToko) 
+
+
+	category := authGroup.Group("/category")
+	category.Use(delivery.AdminMiddleware())
+	category.Post("/", categoryHandler.CreateCategory)
+	category.Get("/", categoryHandler.GetAllCategories)
+	category.Get("/:id", categoryHandler.GetCategoryByID)
+	category.Put("/:id", categoryHandler.UpdateCategory)
+	category.Delete("/:id", categoryHandler.DeleteCategory)
 
 	log.Println("Server berjalan di port :8000")
 	log.Fatal(app.Listen(":8000")) 
