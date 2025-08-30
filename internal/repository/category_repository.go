@@ -1,4 +1,3 @@
-// File: internal/repository/category_repository.go
 package repository
 
 import (

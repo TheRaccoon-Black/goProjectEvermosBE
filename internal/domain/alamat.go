@@ -17,3 +17,7 @@ type AlamatKirim struct {
 	UpdatedAt    time.Time      `json:"-"`
 	DeletedAt    gorm.DeletedAt `gorm:"index" json:"-"`
 }
+
+func (AlamatKirim) TableName() string {
+	return "alamat_kirim"
+}

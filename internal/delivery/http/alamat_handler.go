@@ -41,11 +41,9 @@ func (h *AlamatHandler) GetAllAlamat(c *fiber.Ctx) error {
 	return SuccessResponse(c, fiber.StatusOK, "Berhasil mendapatkan semua alamat", alamats)
 }
 
-// Tambahkan handler baru GetAlamatByID
 func (h *AlamatHandler) GetAlamatByID(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(uint)
 
-	// Ambil ID dari parameter URL dan konversi ke integer
 	alamatID, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return ErrorResponse(c, fiber.StatusBadRequest, "ID Alamat tidak valid", err.Error())
@@ -80,7 +78,6 @@ func (h *AlamatHandler) UpdateAlamat(c *fiber.Ctx) error {
 }
 
 
-// Tambahkan handler baru DeleteAlamat
 func (h *AlamatHandler) DeleteAlamat(c *fiber.Ctx) error {
 	userID := c.Locals("userID").(uint)
 	alamatID, err := strconv.Atoi(c.Params("id"))

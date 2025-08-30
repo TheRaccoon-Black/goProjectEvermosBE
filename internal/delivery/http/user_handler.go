@@ -42,22 +42,18 @@ func (h *UserHandler) GetProfile(c *fiber.Ctx) error {
 }
 
 func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
-	// Ambil userID dari context
 	userID := c.Locals("userID").(uint)
 
-	// Parse request body
 	var input usecase.UpdateProfileInput
 	if err := c.BodyParser(&input); err != nil {
 		return ErrorResponse(c, fiber.StatusBadRequest, "Gagal memproses request", err.Error())
 	}
 
-	// Panggil usecase untuk update
 	updatedUser, err := h.userUsecase.UpdateProfile(userID, input)
 	if err != nil {
 		return ErrorResponse(c, fiber.StatusInternalServerError, "Gagal memperbarui profil", err.Error())
 	}
 
-	// Buat DTO response agar konsisten
 	type userResponse struct {
 		ID        uint   `json:"id"`
 		Nama      string `json:"nama"`

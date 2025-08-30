@@ -15,3 +15,7 @@ type Toko struct {
 	UpdatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }
+
+func (Toko) TableName() string {
+	return "toko"
+}
