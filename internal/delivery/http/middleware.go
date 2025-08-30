@@ -3,7 +3,6 @@ package http
 import (
 	"goProjectEvermos/pkg/helper"
 	"strings"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -27,6 +26,18 @@ func AuthMiddleware() fiber.Handler {
 
 		c.Locals("userID", claims.UserID)
 		c.Locals("userRole", claims.Role)
+
+		return c.Next()
+	}
+}
+func AdminMiddleware() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		// Ambil userRole dari context yang sudah di-set oleh AuthMiddleware
+		role := c.Locals("userRole").(string)
+
+		if role != "admin" {
+			return ErrorResponse(c, fiber.StatusForbidden, "Akses ditolak, hanya untuk admin", nil)
+		}
 
 		return c.Next()
 	}
