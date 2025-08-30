@@ -18,8 +18,14 @@ type RegisterUserInput struct {
 	Email     string `json:"email"`
 }
 
+type LoginUserInput struct {
+	Email     string `json:"email"`
+	KataSandi string `json:"kata_sandi"`
+}
+
 type AuthUsecase interface {
 	Register(input RegisterUserInput) (domain.User, error)
+	Login(input LoginUserInput) (string, error)
 }
 
 type authUsecase struct {
@@ -69,4 +75,27 @@ func (uc *authUsecase) Register(input RegisterUserInput) (domain.User, error) {
 	}
 
 	return createdUser, nil
+}
+
+
+func (uc *authUsecase) Login(input LoginUserInput) (string, error) {
+	user, err := uc.userRepo.FindByEmail(input.Email)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", errors.New("email atau kata sandi salah")
+		}
+		return "", err
+	}
+
+	passwordMatch := helper.CheckPasswordHash(input.KataSandi, user.KataSandi)
+	if !passwordMatch {
+		return "", errors.New("email atau kata sandi salah")
+	}
+
+	token, err := helper.GenerateToken(user.ID, user.Role)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }

@@ -2,7 +2,6 @@ package http
 
 import (
 	"goProjectEvermos/internal/usecase"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -25,19 +24,27 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		return ErrorResponse(c, fiber.StatusBadRequest, "Gagal melakukan registrasi", err.Error())
 	}
 
-	type userResponse struct {
-		ID    uint   `json:"id"`
-		Nama  string `json:"nama"`
-		Email string `json:"email"`
-		NoTelp string `json:"no_telp"`
-	}
-
-	response := userResponse{
-		ID:    registeredUser.ID,
-		Nama:  registeredUser.Nama,
-		Email: registeredUser.Email,
-		NoTelp: registeredUser.NoTelp,
+	response := fiber.Map{
+		"id":      registeredUser.ID,
+		"nama":    registeredUser.Nama,
+		"email":   registeredUser.Email,
+		"no_telp": registeredUser.NoTelp,
 	}
 
 	return SuccessResponse(c, fiber.StatusOK, "Registrasi berhasil", response)
+}
+
+
+func (h *AuthHandler) Login(c *fiber.Ctx) error {
+	var input usecase.LoginUserInput
+	if err := c.BodyParser(&input); err != nil {
+		return ErrorResponse(c, fiber.StatusBadRequest, "Gagal memproses request", err.Error())
+	}
+
+	token, err := h.authUsecase.Login(input)
+	if err != nil {
+		return ErrorResponse(c, fiber.StatusUnauthorized, "Gagal login", err.Error())
+	}
+
+	return SuccessResponse(c, fiber.StatusOK, "Login berhasil", fiber.Map{"token": token})
 }

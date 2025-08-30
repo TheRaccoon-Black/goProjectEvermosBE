@@ -39,16 +39,47 @@ func main() {
 
 	userRepo := repository.NewUserRepository(db)
 	tokoRepo := repository.NewTokoRepository(db)
+	alamatRepo := repository.NewAlamatRepository(db)
 
 	authUsecase := usecase.NewAuthUsecase(userRepo, tokoRepo)
+	userUsecase := usecase.NewUserUsecase(userRepo)
+	alamatUsecase := usecase.NewAlamatUsecase(alamatRepo)
+	tokoUsecase := usecase.NewTokoUsecase(tokoRepo)
 
 	authHandler := delivery.NewAuthHandler(authUsecase) 
-
+	userHandler := delivery.NewUserHandler(userUsecase)
+	alamatHandler := delivery.NewAlamatHandler(alamatUsecase)
+	tokoHandler := delivery.NewTokoHandler(tokoUsecase)
+	
+	
 	app := fiber.New() 
 
+	app.Static("/public", "./public")
+	
 	api := app.Group("/api/v1")
 	auth := api.Group("/auth")
 	auth.Post("/register", authHandler.Register)
+	auth.Post("/login", authHandler.Login)
+
+	api.Get("/toko", tokoHandler.GetAllToko)
+	api.Get("/toko/:id_toko", tokoHandler.GetTokoByID)
+
+
+	user := api.Group("/user")
+	user.Use(delivery.AuthMiddleware()) 
+	user.Get("/", userHandler.GetProfile) 
+	user.Put("/", userHandler.UpdateProfile)
+	user.Post("/alamat", alamatHandler.CreateAlamat)
+	user.Get("/alamat", alamatHandler.GetAllAlamat)      
+	user.Get("/alamat/:id", alamatHandler.GetAlamatByID)
+	user.Put("/alamat/:id", alamatHandler.UpdateAlamat)     
+	user.Delete("/alamat/:id", alamatHandler.DeleteAlamat)
+
+	toko := api.Group("/toko")
+	toko.Use(delivery.AuthMiddleware()) 
+	toko.Get("/my", tokoHandler.GetMyToko)
+	toko.Put("/:id_toko", tokoHandler.UpdateToko) 
+
 	log.Println("Server berjalan di port :8000")
 	log.Fatal(app.Listen(":8000")) 
 }
